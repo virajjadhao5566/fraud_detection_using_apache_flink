@@ -30,17 +30,22 @@ import org.apache.flink.walkthrough.common.source.TransactionSource;
  */
 public class FraudDetectionJob {
 	public static void main(String[] args) throws Exception {
+//		Setting an execution environment for flink
 		StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
+//		Adding source of data
+//		Here unlimited data is fetched from transactions
 		DataStream<Transaction> transactions = env
 			.addSource(new TransactionSource())
 			.name("transactions");
 
+//		Partitioning data stream using keyBY
 		DataStream<Alert> alerts = transactions
 			.keyBy(Transaction::getAccountId)
 			.process(new FraudDetector())
 			.name("fraud-detector");
 
+//		output the results
 		alerts
 			.addSink(new AlertSink())
 			.name("send-alerts");
